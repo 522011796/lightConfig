@@ -1,7 +1,7 @@
 <template>
   <div class="mian-block">
     <div class="main-block-title">
-      Ilight配置
+      ILight配置
       <span class="main-block-add">
         <i class="fa fa-plus-circle" style="font-size: 25px" @click="add"></i>
       </span>
@@ -46,7 +46,7 @@
           </el-col>
           <el-col :span="16">
             <div class="font-size-15 fontBold textCenter">
-              Ilight配置设置
+              ILight配置设置
             </div>
           </el-col>
           <el-col :span="4" class="textRight">
@@ -260,7 +260,7 @@ export default {
         "禁止联网" : "NO",
         '输出平均电压': 36,
         '硬件支持最大电流': 300,
-        '厂商限制最大电流': 250,
+        '厂商限制最大电流': 300,
         '缺省选择最大电流': 150,
         '灯光模型': '冷暖调光',
         'PWM通道数量': 2,
@@ -274,12 +274,12 @@ export default {
         '缺省PWM最低频率': 1600,
         '缺省PWM最高频率': 4000,
         '上电灯光模式': '强制开灯',
-        '上电指定亮度': 0.8,
+        '上电指定亮度': 1,
         '上电指定色温': 4000,
         '上电指定色彩': 16777215,
         '开灯渐变时间': 5000,
         '关灯渐变时间': 5000,
-        '缺省最低亮度': 0.1,
+        '缺省最低亮度': 0.0001,
         '缺省最高亮度': 1,
         '缺省最低色温': 2700,
         '缺省最高色温': 6500
@@ -442,11 +442,11 @@ export default {
     },
     changeLightModel(data){
       if (data == '强制开灯并指定亮度和色温'){
-        this.formConfig.上电指定亮度 = 0.8;
+        this.formConfig.上电指定亮度 = 1;
         this.formConfig.上电指定色彩 = 0;
         this.formConfig.上电指定色温 = 4000;
       }else if (data == '强制开灯并指定亮度和色彩'){
-        this.formConfig.上电指定亮度 = 0.8;
+        this.formConfig.上电指定亮度 = 1;
         this.formConfig.上电指定色温 = 0;
         this.formConfig.上电指定色彩 = 16777215;
       }else {
@@ -498,9 +498,10 @@ export default {
           '硬件制造日期': '',
           '产品出厂日期': '',
           '射频大功率': 'NO',
+          "禁止联网" : "NO",
           '输出平均电压': 36,
           '硬件支持最大电流': 300,
-          '厂商限制最大电流': 250,
+          '厂商限制最大电流': 300,
           '缺省选择最大电流': 150,
           '灯光模型': '冷暖调光',
           'PWM通道数量': 2,
@@ -514,12 +515,12 @@ export default {
           '缺省PWM最低频率': 1600,
           '缺省PWM最高频率': 4000,
           '上电灯光模式': '强制开灯',
-          '上电指定亮度': 0.8,
+          '上电指定亮度': 1,
           '上电指定色温': 4000,
           '上电指定色彩': 16777215,
           '开灯渐变时间': 5000,
           '关灯渐变时间': 5000,
-          '缺省最低亮度': 0.1,
+          '缺省最低亮度': 0.0001,
           '缺省最高亮度': 1,
           '缺省最低色温': 2700,
           '缺省最高色温': 6500
