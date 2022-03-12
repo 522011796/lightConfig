@@ -296,15 +296,21 @@ export default {
   },
   methods: {
     init(){
-      this.$axios.get('/proxy/firmware/test/list.php').then(res => {
+      this.$axios.get('/proxy/list.php').then(res => {
         this.data = res.data.data;
       });
     },
     changeGModel(data){
-      this.fileName = this.formConfig.厂商名称 + "-" + data + "-" + this.$moment().format("yyyy-MM-DD");
+      if (this.edit == 0){
+        let fileName = data == '' ? 'file' : data;
+        this.fileName = this.formConfig.厂商名称 + "-" + fileName + "-" + this.$moment().format("yyyy-MM-DD");
+      }
     },
     changePName(data){
-      this.fileName = data + "-" + this.formConfig.产品型号 + "-" + this.$moment().format("yyyy-MM-DD");
+      if (this.edit == 0) {
+        let fileName = data == '' ? 'file' : data;
+        this.fileName = fileName + "-" + this.formConfig.产品型号 + "-" + this.$moment().format("yyyy-MM-DD");
+      }
     },
     add(){
       this.edit = 0;
@@ -318,7 +324,7 @@ export default {
     update(event, item){
       this.edit = 1;
       this.fileName = item.fileName;
-      this.$axios.get('/proxy/firmware/test/data.php?file_name=' + item.fileName).then(res => {
+      this.$axios.get('/proxy/data.php?file_name=' + item.fileName).then(res => {
         this.formConfig = JSON.parse(res.data.data);
         let year1 = '20' + this.formConfig.硬件制造日期.substring(0,2);
         let year2 = '20' + this.formConfig.产品出厂日期.substring(0,2);
@@ -336,7 +342,7 @@ export default {
         file_name: item.fileName
       };
       params = this.$qs.stringify(params);
-      this.$axios.post('/proxy/firmware/test/action.php', params).then(res => {
+      this.$axios.post('/proxy/action.php', params).then(res => {
         if (res.data.code == 200){
           this.init();
         }else{
@@ -366,7 +372,7 @@ export default {
                 new_file_name: instance.inputValue
               };
               params = this.$qs.stringify(params);
-              _self.$axios.post('/proxy/firmware/test/action.php', params).then(res => {
+              _self.$axios.post('/proxy/action.php', params).then(res => {
                 if (res.data.code == 200){
                   _self.init();
                   done();
@@ -388,7 +394,7 @@ export default {
       });
     },
     download(event, item){
-      window.open('/proxy/firmware/test/download.php?file_name=' + item.fileName, "_self");
+      window.open('/proxy/download.php?file_name=' + item.fileName, "_self");
     },
     cancel(){
       this.drawerAdd = false;
@@ -422,7 +428,7 @@ export default {
         };
       }
       params = this.$qs.stringify(params);
-      this.$axios.post('/proxy/firmware/test/action.php', params).then(res => {
+      this.$axios.post('/proxy/action.php', params).then(res => {
         if (res.data.code == 200){
           this.init();
           this.drawerAdd = false;

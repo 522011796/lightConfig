@@ -51,7 +51,7 @@ export default {
   },
   proxy: [
     ['/proxy', {
-      target: 'http://192.168.15.50',  //api请求路径
+      target: process.env.BASE_URL,  //api请求路径
       pathRewrite: { '^/proxy' : '/' }  //重定向请求路径，防止路由、api路径的冲突
     }]
   ],
