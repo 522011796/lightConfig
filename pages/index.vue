@@ -1,6 +1,11 @@
 <template>
   <div class="mian-block">
     <div class="main-block-title">
+      <span class="main-block-logout">
+        <el-button size="mini" @click="logout">
+          <span>退出</span>
+        </el-button>
+      </span>
       ILight配置
       <span class="main-block-add">
         <i class="fa fa-plus-circle" style="font-size: 25px" @click="add"></i>
@@ -278,7 +283,7 @@ export default {
         '上电指定色温': 4000,
         '上电指定色彩': 16777215,
         '开灯渐变时间': 5000,
-        '关灯渐变时间': 5000,
+        '关灯渐变时间': 4000,
         '缺省最低亮度': 0.0001,
         '缺省最高亮度': 1,
         '缺省最低色温': 2700,
@@ -297,7 +302,9 @@ export default {
   methods: {
     init(){
       this.$axios.get('/proxy/list.php').then(res => {
-        this.data = res.data.data;
+        if (res.data.code == 200){
+          this.data = res.data.data;
+        }
       });
     },
     changeGModel(data){
@@ -311,6 +318,13 @@ export default {
         let fileName = data == '' ? 'file' : data;
         this.fileName = fileName + "-" + this.formConfig.产品型号 + "-" + this.$moment().format("yyyy-MM-DD");
       }
+    },
+    logout(){
+      this.$axios.get('/proxy/logout.php').then(res => {
+        this.$router.replace({
+          path: '/login'
+        });
+      });
     },
     add(){
       this.edit = 0;
@@ -519,7 +533,7 @@ export default {
           '上电指定色温': 4000,
           '上电指定色彩': 16777215,
           '开灯渐变时间': 5000,
-          '关灯渐变时间': 5000,
+          '关灯渐变时间': 4000,
           '缺省最低亮度': 0.0001,
           '缺省最高亮度': 1,
           '缺省最低色温': 2700,
@@ -562,5 +576,11 @@ export default {
   padding-right: 10px;
   position: relative;
   top: 5px;
+}
+.main-block-logout{
+  float: left;
+  padding-left: 0px;
+  position: relative;
+  top: 0px;
 }
 </style>
