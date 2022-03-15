@@ -63,23 +63,23 @@
 
       <div>
         <el-form ref="form" :model="formConfig" label-width="150px">
-          <el-form-item label="文件名称" v-if="edit == 0">
+          <el-form-item label="文件名称">
             <el-input v-model="fileName" class="width300"></el-input>
           </el-form-item>
           <el-form-item label="厂商名称">
-            <el-input v-model="formConfig.厂商名称" class="width300" @input="changePName"></el-input>
+            <el-input v-model="formConfig.厂商名称" class="width300"></el-input>
           </el-form-item>
           <el-form-item label="产品型号">
-            <el-input v-model="formConfig.产品型号" class="width300" @input="changeGModel"></el-input>
+            <el-input v-model="formConfig.产品型号" class="width300"></el-input>
           </el-form-item>
           <el-form-item label="硬件制造日期">
             <el-date-picker
               style="width: 300px"
               v-model="createTime"
-              type="week"
-              format="yyyy 第 WW 周"
+              type="month"
+              format="yyyy-MM"
               placeholder="选择周"
-              value-format="yyyy-MM-dd"
+              value-format="yyyy-MM"
               :picker-options="{'firstDayOfWeek': 1}">
             </el-date-picker>
           </el-form-item>
@@ -87,9 +87,9 @@
             <el-date-picker
               style="width: 300px"
               v-model="goodsTime"
-              type="week"
-              format="yyyy 第 WW 周"
-              value-format="yyyy-MM-dd"
+              type="month"
+              format="yyyy-MM"
+              value-format="yyyy-MM"
               placeholder="选择周"
               :picker-options="{'firstDayOfWeek': 1}">
             </el-date-picker>
@@ -107,7 +107,7 @@
             </el-radio-group>
           </el-form-item>
           <el-form-item label="输出平均电压">
-            <el-input v-model="formConfig.输出平均电压" class="width300"></el-input>
+            <el-input v-model="formConfig.输出平均电压" class="width300" @input="changeGV"></el-input>
           </el-form-item>
           <el-form-item label="硬件支持最大电流">
             <el-input v-model="formConfig.硬件支持最大电流" class="width300"></el-input>
@@ -116,7 +116,7 @@
             <el-input v-model="formConfig.厂商限制最大电流" class="width300"></el-input>
           </el-form-item>
           <el-form-item label="缺省选择最大电流">
-            <el-input v-model="formConfig.缺省选择最大电流" class="width300"></el-input>
+            <el-input v-model="formConfig.缺省选择最大电流" class="width300" @input="changePMA"></el-input>
           </el-form-item>
           <el-form-item label="灯光模型">
             <el-radio-group v-model="formConfig.灯光模型">
@@ -187,12 +187,6 @@
               <el-radio label="禁用"></el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="PWM最低支持频率">
-            <el-input v-model="formConfig.PWM最低支持频率" class="width300"></el-input>
-          </el-form-item>
-          <el-form-item label="PWM最高支持频率">
-            <el-input v-model="formConfig.PWM最高支持频率" class="width300"></el-input>
-          </el-form-item>
           <el-form-item label="缺省PWM最低频率">
             <el-input v-model="formConfig.缺省PWM最低频率" class="width300"></el-input>
           </el-form-item>
@@ -254,6 +248,7 @@ export default {
         'overflow-y': 'auto'
       },
       fileName: '',
+      oldFileName: '',
       createTime: '',
       goodsTime: '',
       formConfig: {
@@ -274,8 +269,6 @@ export default {
         'PWM通道3': '红光',
         'PWM通道4': '绿光',
         'PWM通道5': '蓝光',
-        'PWM最低支持频率': 100,
-        'PWM最高支持频率': 16000,
         '缺省PWM最低频率': 1600,
         '缺省PWM最高频率': 4000,
         '上电灯光模式': '强制开灯',
@@ -307,16 +300,16 @@ export default {
         }
       });
     },
-    changeGModel(data){
+    changeGV(data){
       if (this.edit == 0){
-        let fileName = data == '' ? 'file' : data;
-        this.fileName = this.formConfig.厂商名称 + "-" + fileName + "-" + this.$moment().format("yyyy-MM-DD");
+        let fileName = data == '' ? 'file' : data + "V";
+        this.fileName = this.formConfig.厂商名称 + "-" + fileName + "-" + this.formConfig.缺省选择最大电流 + "mA";
       }
     },
-    changePName(data){
+    changePMA(data){
       if (this.edit == 0) {
-        let fileName = data == '' ? 'file' : data;
-        this.fileName = fileName + "-" + this.formConfig.产品型号 + "-" + this.$moment().format("yyyy-MM-DD");
+        let fileName = data == '' ? 'file' : data + "mA";
+        this.fileName = this.formConfig.厂商名称 + "-" + this.formConfig.输出平均电压 + "V" + "-" + fileName;
       }
     },
     logout(){
@@ -328,24 +321,25 @@ export default {
     },
     add(){
       this.edit = 0;
-      this.fileName = this.formConfig.厂商名称 + "-" + this.formConfig.产品型号 + "-" + this.$moment().format("yyyy-MM-DD");
+      this.fileName = this.formConfig.厂商名称 + "-" + this.formConfig.输出平均电压 + "V" + "-" + this.formConfig.缺省选择最大电流 + "mA" + "-";
       let year = this.$moment().format("yyyy");
-      let week = this.$moment().format("W");
-      this.goodsTime = this.$moment(this.$moment().year(year).week(week)).format('YYYY-MM-DD');
-      this.createTime= this.$moment(this.$moment().year(year).week(week)).format('YYYY-MM-DD');
+      let month = this.$moment().format("MM");
+      this.goodsTime = this.$moment().format('YYYY-MM');
+      this.createTime= this.$moment().format('YYYY-MM');
       this.drawerAdd = true;
     },
     update(event, item){
       this.edit = 1;
       this.fileName = item.fileName;
+      this.oldFileName = item.fileName;
       this.$axios.get('/proxy/data.php?file_name=' + item.fileName).then(res => {
         this.formConfig = JSON.parse(res.data.data);
         let year1 = '20' + this.formConfig.硬件制造日期.substring(0,2);
         let year2 = '20' + this.formConfig.产品出厂日期.substring(0,2);
-        let createTime = this.$moment(this.$moment().year(parseInt(year1)).week(parseInt(this.formConfig.硬件制造日期.substring(2,4)))).format('YYYY-MM-DD');
-        let goodsTime = this.$moment(this.$moment().year(parseInt(year2)).week(parseInt(this.formConfig.产品出厂日期.substring(2,4)))).format('YYYY-MM-DD');
-        this.createTime = createTime;
-        this.goodsTime = goodsTime;
+        let time1 = year1 +"-"+ this.formConfig.硬件制造日期.substring(2,4);
+        let time2 = year2 +"-"+ this.formConfig.产品出厂日期.substring(2,4);
+        this.createTime = time1;
+        this.goodsTime = time2;
       });
       //this.fileName = this.formConfig.厂商名称 + "-" + this.formConfig.产品型号 + "-" + this.$moment().format("yyyy-MM-DD");
       this.drawerAdd = true;
@@ -414,19 +408,13 @@ export default {
       this.drawerAdd = false;
     },
     save(){
-      let goodsTime = this.$moment(this.goodsTime).format("yyyyWW");
-      let createTime = this.$moment(this.createTime).format("yyyyWW");
-      this.formConfig.硬件制造日期 = createTime.substring(2);
-      this.formConfig.产品出厂日期 = goodsTime.substring(2);
+      this.formConfig.硬件制造日期 = this.createTime.substring(2,4) + this.createTime.substring(5,7);
+      this.formConfig.产品出厂日期 = this.goodsTime.substring(2,4) + this.goodsTime.substring(5,7);
       let fileName = this.fileName;
       if (this.fileName == ''){
-        fileName = this.formConfig.厂商名称 + "-" + this.formConfig.产品型号 + "-" + this.$moment().format("yyyy-MM-DD");
+        fileName = this.formConfig.厂商名称 + "-" + this.formConfig.输出平均电压 + "V" + "-" + this.formConfig.缺省选择最大电流 + "mA"
       }
-      let params = {
-        action: this.edit == 0 ? 'add' : 'edit',
-        file_name: fileName,
-        data: JSON.stringify(this.formConfig)
-      };
+      let params = {};
 
       if (this.edit == 0){
         params = {
@@ -436,8 +424,9 @@ export default {
         };
       }else if (this.edit == 1){
         params = {
-          action: 'edit',
-          file_name: this.fileName,
+          action: 'rename_edit',
+          file_name: this.oldFileName,
+          new_file_name: this.fileName,
           data: JSON.stringify(this.formConfig)
         };
       }
@@ -524,8 +513,6 @@ export default {
           'PWM通道3': '红光',
           'PWM通道4': '绿光',
           'PWM通道5': '蓝光',
-          'PWM最低支持频率': 100,
-          'PWM最高支持频率': 16000,
           '缺省PWM最低频率': 1600,
           '缺省PWM最高频率': 4000,
           '上电灯光模式': '强制开灯',
