@@ -67,7 +67,7 @@
             <el-input v-model="fileName" class="width300"></el-input>
           </el-form-item>
           <el-form-item label="厂商名称">
-            <el-input v-model="formConfig.厂商名称" class="width300"></el-input>
+            <el-input v-model="formConfig.厂商名称" class="width300" @input="changePname"></el-input>
           </el-form-item>
           <el-form-item label="产品型号">
             <el-input v-model="formConfig.产品型号" class="width300"></el-input>
@@ -300,16 +300,37 @@ export default {
         }
       });
     },
+    changePname(data){
+      let fileName = this.fileName.split('-');
+      fileName[0] = data;
+      this.fileName = "";
+      for (let i = 0; i < fileName.length; i++){
+        this.fileName += fileName[i];
+        if (fileName.length -1 != i){
+          this.fileName += "-";
+        }
+      }
+    },
     changeGV(data){
-      if (this.edit == 0){
-        let fileName = data == '' ? 'file' : data + "V";
-        this.fileName = this.formConfig.厂商名称 + "-" + fileName + "-" + this.formConfig.缺省选择最大电流 + "mA";
+      let fileName = this.fileName.split('-');
+      fileName[1] = data + "V";
+      this.fileName = "";
+      for (let i = 0; i < fileName.length; i++){
+        this.fileName += fileName[i];
+        if (fileName.length -1 != i){
+          this.fileName += "-";
+        }
       }
     },
     changePMA(data){
-      if (this.edit == 0) {
-        let fileName = data == '' ? 'file' : data + "mA";
-        this.fileName = this.formConfig.厂商名称 + "-" + this.formConfig.输出平均电压 + "V" + "-" + fileName;
+      let fileName = this.fileName.split('-');
+      fileName[2] = data + "mA";
+      this.fileName = "";
+      for (let i = 0; i < fileName.length; i++){
+        this.fileName += fileName[i];
+        if (fileName.length -1 != i){
+          this.fileName += "-";
+        }
       }
     },
     logout(){
