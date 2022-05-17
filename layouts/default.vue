@@ -1,7 +1,7 @@
 <template>
     <div>
       <div>
-        <nuxt></nuxt>
+        <nuxt ref="childRef"></nuxt>
       </div>
     </div>
 </template>
