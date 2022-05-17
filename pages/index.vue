@@ -73,7 +73,7 @@
       <div>
         <el-form v-if="devType == 'light'" ref="form" :model="formConfig" label-width="140px">
           <el-form-item label="文件名称">
-            <el-input v-model="fileName" style="width: 420px" disabled></el-input>
+            <el-input v-model="fileName" style="width: 440px" disabled></el-input>
             -
             <el-input v-model="fileNameFixed" style="width: 100px"></el-input>
           </el-form-item>
@@ -85,7 +85,7 @@
           </el-form-item>
           <el-form-item label="硬件制造日期">
             <el-date-picker
-              style="width: 420px"
+              style="width: 440px"
               v-model="createTime"
               type="month"
               format="yyyy-MM"
@@ -96,7 +96,7 @@
           </el-form-item>
           <el-form-item label="产品出厂日期">
             <el-date-picker
-              style="width: 420px"
+              style="width: 440px"
               v-model="goodsTime"
               type="month"
               format="yyyy-MM"
@@ -569,7 +569,13 @@ export default {
       this.fileName = "";
       if (this.devType == "switch"){
         for (let i = 0; i < this.fileNameArray.length; i++){
-          this.fileName += this.fileNameArray[i];
+          if (i == 3){
+            this.fileName += "b" + this.fileNameArray[i];
+          }else if (i == 4){
+            this.fileName += "r" + this.fileNameArray[i];
+          }else {
+            this.fileName += this.fileNameArray[i];
+          }
           if (this.fileNameArray.length-1 != i){
             this.fileName += "-";
           }
@@ -593,7 +599,7 @@ export default {
           }else if (i == 7){
             this.fileName += this.fileNameArray[i] + "]";
           }else if (i == 9){
-            this.fileName += "pw" + this.fileNameArray[i];
+            this.fileName += "pwm" + this.fileNameArray[i];
           }else {
             this.fileName += this.fileNameArray[i];
           }
@@ -697,8 +703,8 @@ export default {
         this.fileNameArray[0] = filename[0];
         this.fileNameArray[1] = filename[1] + "-" + filename[2];
         this.fileNameArray[2] = filename[3] + "-" + filename[4];
-        this.fileNameArray[3] = filename[5];
-        this.fileNameArray[4] = filename[6];
+        this.fileNameArray[3] = filename[5].substring(1);
+        this.fileNameArray[4] = filename[6].substring(1);
 
         this.fileNameFixed = filename[7] == undefined ? "" : filename[7];
       }
@@ -891,6 +897,8 @@ export default {
         this.formSwitch.缺省继电器2对应按键 = this.formSwitch.缺省继电器2对应按键;
         this.formSwitch.缺省继电器3对应按键 = this.formSwitch.缺省继电器3对应按键;
         this.formSwitch.缺省继电器4对应按键 = this.formSwitch.缺省继电器4对应按键;
+        this.formSwitch.按键数量Bak = undefined;
+        this.formSwitch.继电器数量Bak = undefined;
       }
 
 
