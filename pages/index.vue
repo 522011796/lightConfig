@@ -572,7 +572,8 @@ export default {
           if (i == 3){
             this.fileName += "b" + this.fileNameArray[i];
           }else if (i == 4){
-            this.fileName += "r" + this.fileNameArray[i];
+            let fileName4 = this.fileNameArray[i].toString();
+            this.fileName += "r" + fileName4.replace(/.copy/g, "");
           }else {
             this.fileName += this.fileNameArray[i];
           }
@@ -645,15 +646,15 @@ export default {
       this.setFileName();
     },
     changeHL(data){
-      this.fileNameArray[6] = data;
+      this.fileNameArray[5] = data;
       this.setFileName();
     },
     changePL(data){
-      this.fileNameArray[7] = data;
+      this.fileNameArray[6] = data;
       this.setFileName();
     },
     changePMA(data){
-      this.fileNameArray[5] = data + "mA";
+      this.fileNameArray[7] = data;
       this.setFileName();
     },
     logout(){
@@ -706,7 +707,7 @@ export default {
         this.fileNameArray[3] = filename[5].substring(1);
         this.fileNameArray[4] = filename[6].substring(1);
 
-        this.fileNameFixed = filename[7] == undefined ? "" : filename[7];
+        this.fileNameFixed = filename[7] == undefined ? "" : filename[7].replace(/.copy/g, "");
       }
       //this.fileName = item.fileName;
       this.oldFileName = item.fileName;
@@ -728,9 +729,9 @@ export default {
           this.fileNameArray[2] = this.goodsTime;
           this.fileNameArray[3] = this.formConfig.恒压输出;
           this.fileNameArray[4] = this.formConfig.输出平均电压;
-          this.fileNameArray[5] = this.formConfig.缺省选择最大电流;
+          this.fileNameArray[5] = this.formConfig.硬件支持最大电流;
           this.fileNameArray[6] = this.formConfig.厂商限制最大电流;
-          this.fileNameArray[7] = this.formConfig.硬件支持最大电流;
+          this.fileNameArray[7] = this.formConfig.缺省选择最大电流;
           let type = "";
           if (this.formConfig.灯光模型 == '无模型调光'){
             type = "null";
@@ -745,7 +746,7 @@ export default {
           }
           this.fileNameArray[8] = type;
           this.fileNameArray[9] = this.formConfig.PWM通道数量;
-          this.fileNameFixed = filename[12] == undefined ? "" : filename[12];
+          this.fileNameFixed = filename[12] == undefined ? "" : filename[12].replace(/.copy/g, "");
         }else if (this.devType == "switch"){
           this.formSwitch = JSON.parse(res.data.data);
           this.formSwitch['按键数量Bak'] = this.formSwitch.按键数量;
@@ -765,22 +766,28 @@ export default {
       this.drawerAdd = true;
     },
     del(event, item){
-      let params = {
-        action: 'del',
-        dev_type: this.devType,
-        file_name: item.fileName
-      };
-      params = this.$qs.stringify(params);
-      this.$axios.post('/proxy/action.php', params).then(res => {
-        if (res.data.code == 200){
-          this.init();
-        }else{
-          this.$message({
-            message: res.data.desc,
-            type: 'info'
-          });
-        }
-      });
+      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        let params = {
+          action: 'del',
+          dev_type: this.devType,
+          file_name: item.fileName
+        };
+        params = this.$qs.stringify(params);
+        this.$axios.post('/proxy/action.php?action=del', params).then(res => {
+          if (res.data.code == 200){
+            this.init();
+          }else{
+            this.$message({
+              message: res.data.desc,
+              type: 'info'
+            });
+          }
+        });
+      })
     },
     copy(event, item){
       let _self = this;
@@ -790,7 +797,7 @@ export default {
         {
           closeOnClickModal: false,
           showClose: false,
-          inputValue: item.fileName,
+          inputValue: item.fileName + ".copy",
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           beforeClose: (action, instance, done) => {
@@ -802,7 +809,7 @@ export default {
                 new_file_name: instance.inputValue
               };
               params = this.$qs.stringify(params);
-              _self.$axios.post('/proxy/action.php', params).then(res => {
+              _self.$axios.post('/proxy/action.php?action=clone', params).then(res => {
                 if (res.data.code == 200){
                   _self.init();
                   done();
@@ -831,10 +838,12 @@ export default {
     },
     save(){
       let params = {};
+      let action = "";
       let fileName = this.fileName;
       if (this.fileNameFixed != ""){
         fileName += "-" + this.fileNameFixed;
       }
+
       if (this.devType == "light"){
         this.formConfig.硬件制造日期 = this.createTime.substring(2,4) + this.createTime.substring(5,7);
         this.formConfig.产品出厂日期 = this.goodsTime.substring(2,4) + this.goodsTime.substring(5,7);
@@ -874,7 +883,6 @@ export default {
           return;
           // fileName = this.formSwitch.厂商名称
         }
-
         this.formSwitch.按键数量 = parseInt(this.formSwitch.按键数量Bak);
         this.formSwitch.继电器数量 = parseInt(this.formSwitch.继电器数量Bak);
         this.formSwitch.缺省按键1定义 = this.formSwitch.缺省按键1定义;
@@ -901,13 +909,13 @@ export default {
         this.formSwitch.继电器数量Bak = undefined;
       }
 
-
       if (this.edit == 0){
         params = {
           action: 'add',
           dev_type: this.devType,
           file_name: fileName
         };
+        action = "add";
       }else if (this.edit == 1){
         params = {
           action: 'rename_edit',
@@ -915,6 +923,7 @@ export default {
           file_name: this.oldFileName,
           new_file_name: fileName
         };
+        action = "rename_edit";
       }
       if (this.devType == 'light'){
         params['data'] = JSON.stringify(this.formConfig);
@@ -923,7 +932,7 @@ export default {
       }
       params = this.$qs.stringify(params);
       this.loading = true;
-      this.$axios.post('/proxy/action.php', params).then(res => {
+      this.$axios.post('/proxy/action.php?action='+action, params).then(res => {
         if (res.data.code == 200){
           this.init();
           this.drawerAdd = false;
@@ -932,6 +941,8 @@ export default {
             message: res.data.desc,
             type: 'info'
           });
+          this.formSwitch.按键数量Bak = parseInt(this.formSwitch.按键数量);
+          this.formSwitch.继电器数量Bak = parseInt(this.formSwitch.继电器数量);
         }
         this.loading = false;
       });
