@@ -699,20 +699,20 @@ export default {
     },
     update(event, item){
       this.edit = 1;
-      let filename = item.fileName.split("-");
-      if (this.devType == "switch"){
-        this.fileNameArray[0] = filename[0];
-        this.fileNameArray[1] = filename[1] + "-" + filename[2];
-        this.fileNameArray[2] = filename[3] + "-" + filename[4];
-        this.fileNameArray[3] = filename[5].substring(1);
-        this.fileNameArray[4] = filename[6].substring(1);
-
-        this.fileNameFixed = filename[7] == undefined ? "" : filename[7].replace(/.copy/g, "");
-      }
-      //this.fileName = item.fileName;
+      // if (this.devType == "switch"){
+      //   this.fileNameArray[0] = filename[0];
+      //   this.fileNameArray[1] = item.厂商型号;
+      //   this.fileNameArray[2] = filename[3] + "-" + filename[4];
+      //   this.fileNameArray[3] = filename[5].substring(1);
+      //   this.fileNameArray[4] = filename[6].substring(1);
+      //
+      //   this.fileNameFixed = filename[7] == undefined ? "" : filename[7].replace(/.copy/g, "");
+      // }
+      this.fileName = item.fileName;
       this.oldFileName = item.fileName;
       this.$axios.get('/proxy/data.php?file_name=' + item.fileName + "&dev_type=" + this.devType).then(res => {
         if (this.devType == "light"){
+          let filename = item.fileName.split("-");
           this.formConfig = JSON.parse(res.data.data);
           if (this.formConfig['恒压输出'] == undefined){
             this.formConfig['恒压输出'] = 'NO';
@@ -746,19 +746,35 @@ export default {
           }
           this.fileNameArray[8] = type;
           this.fileNameArray[9] = this.formConfig.PWM通道数量;
-          this.fileNameFixed = filename[12] == undefined ? "" : filename[12].replace(/.copy/g, "");
+          //this.fileNameFixed = filename[12] == undefined ? "" : filename[12].replace(/.copy/g, "");
+
+          if (filename[filename.length - 1].substring(3).replace(/.copy/g, "") != this.formConfig.PWM通道数量){
+            this.fileNameFixed = filename[filename.length - 1] == undefined ? "" : filename[filename.length - 1].replace(/.copy/g, "");
+          }
         }else if (this.devType == "switch"){
+          let filename = item.fileName.split("-");
           this.formSwitch = JSON.parse(res.data.data);
           this.formSwitch['按键数量Bak'] = this.formSwitch.按键数量;
           this.formSwitch['继电器数量Bak'] = this.formSwitch.继电器数量;
           this.formSwitch['按键数量'] = 8;
           this.formSwitch['继电器数量'] = 4;
+
           let year1 = '20' + this.formSwitch.硬件制造日期.substring(0,2);
           let year2 = '20' + this.formSwitch.产品出厂日期.substring(0,2);
           let time1 = year1 +"-"+ this.formSwitch.硬件制造日期.substring(2,4);
           let time2 = year2 +"-"+ this.formSwitch.产品出厂日期.substring(2,4);
           this.createTime = time1;
           this.goodsTime = time2;
+
+          this.fileNameArray[0] = this.formSwitch.厂商名称;
+          this.fileNameArray[1] = this.formSwitch.产品型号;
+          this.fileNameArray[2] = time2;
+          this.fileNameArray[3] = this.formSwitch.按键数量Bak;
+          this.fileNameArray[4] = this.formSwitch.继电器数量Bak;
+
+          if (filename[filename.length - 1].substring(1).replace(/.copy/g, "") != this.formSwitch.继电器数量Bak){
+            this.fileNameFixed = filename[filename.length - 1] == undefined ? "" : filename[filename.length - 1].replace(/.copy/g, "");
+          }
         }
         this.setFileName();
       });
@@ -841,6 +857,14 @@ export default {
       let action = "";
       let fileName = this.fileName;
       if (this.fileNameFixed != ""){
+        let myReg = /[-]/;
+        if(myReg.test(this.fileNameFixed)) {
+          this.$message({
+            message: "输入文件名后缀不能带有-字符",
+            type: 'warning'
+          });
+          return true;
+        }
         fileName += "-" + this.fileNameFixed;
       }
 
