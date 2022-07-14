@@ -459,7 +459,7 @@
     </el-drawer>
 
     <el-dialog
-      title="请输入文件名"
+      title="克隆文件"
       :visible.sync="dialogCopy"
       width="500px"
       @close="closeDialog">
