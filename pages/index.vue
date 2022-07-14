@@ -457,6 +457,20 @@
         </el-form>
       </div>
     </el-drawer>
+
+    <el-dialog
+      title="请输入文件名"
+      :visible.sync="dialogCopy"
+      width="500px"
+      @close="closeDialog">
+      <div>
+        <el-input v-model="inputCopyValue" disabled></el-input>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogCopy = false">取 消</el-button>
+        <el-button size="small" type="primary" @click="copyOk">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -468,10 +482,14 @@ export default {
   data(){
     return {
       drawerAdd: false,
+      dialogCopy: false,
       data: [],
       edit: 0,
       devType: 'light',
       loading: false,
+      copyStatus: false,
+      inputCopyValue: '',
+      copyItem: {},
       mainStyle: {
         'height': 0,
         'overflow-y': 'auto'
@@ -807,44 +825,76 @@ export default {
     },
     copy(event, item){
       let _self = this;
-      this.$prompt(
-        '',
-        '请输入文件名',
-        {
-          closeOnClickModal: false,
-          showClose: false,
-          inputValue: item.fileName + ".copy",
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          beforeClose: (action, instance, done) => {
-            if (action === 'confirm') {
-              let params = {
-                action: 'clone',
-                dev_type: this.devType,
-                file_name: item.fileName,
-                new_file_name: instance.inputValue
-              };
-              params = this.$qs.stringify(params);
-              _self.$axios.post('/proxy/action.php?action=clone', params).then(res => {
-                if (res.data.code == 200){
-                  _self.init();
-                  done();
-                }else{
-                  _self.$message({
-                    message: res.data.desc,
-                    type: 'info'
-                  });
-                }
-              });
-            }else{
-              done();
-            }
-          }
-      }).then(({ value }) => {
-
-      }).catch(() => {
-
+      this.copyStatus = true;
+      this.inputCopyValue = item.fileName + ".copy";
+      this.copyItem = item;
+      this.dialogCopy = true;
+      // this.$prompt(
+      //   '',
+      //   '请输入文件名',
+      //   {
+      //     closeOnClickModal: false,
+      //     showClose: false,
+      //     inputValue: item.fileName + ".copy",
+      //     confirmButtonText: '确定',
+      //     cancelButtonText: '取消',
+      //     beforeClose: (action, instance, done) => {
+      //       if (action === 'confirm') {
+      //         let params = {
+      //           action: 'clone',
+      //           dev_type: this.devType,
+      //           file_name: item.fileName,
+      //           new_file_name: instance.inputValue
+      //         };
+      //         params = this.$qs.stringify(params);
+      //         _self.$axios.post('/proxy/action.php?action=clone', params).then(res => {
+      //           if (res.data.code == 200){
+      //             _self.init();
+      //             _self.copyStatus = false;
+      //             done();
+      //           }else{
+      //             _self.$message({
+      //               message: res.data.desc,
+      //               type: 'info'
+      //             });
+      //           }
+      //         });
+      //       }else{
+      //         _self.copyStatus = false;
+      //         done();
+      //       }
+      //     }
+      // }).then(({ value }) => {
+      //
+      // }).catch(() => {
+      //
+      // });
+    },
+    copyOk(){
+      let _self = this;
+      let params = {
+        action: 'clone',
+        dev_type: this.devType,
+        file_name: this.copyItem.fileName,
+        new_file_name: this.inputCopyValue
+      };
+      params = this.$qs.stringify(params);
+      _self.$axios.post('/proxy/action.php?action=clone', params).then(res => {
+        if (res.data.code == 200){
+          _self.init();
+          _self.dialogCopy = false;
+        }else{
+          _self.$message({
+            message: res.data.desc,
+            type: 'info'
+          });
+        }
       });
+    },
+    closeDialog(){
+      this.copyItem = {};
+      this.inputCopyValue = "";
+      this.dialogCopy = false;
     },
     download(event, item){
       window.open('/proxy/download.php?file_name=' + item.fileName + "&dev_type=" + this.devType, "_self");
