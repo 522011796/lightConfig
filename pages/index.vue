@@ -5,6 +5,10 @@
         <el-button size="mini" @click="logout">
           <span>退出</span>
         </el-button>
+        <el-button size="mini" type="warning" @click="addPrdu">
+          <i class="fa fa-plus" size="mini"></i>
+          厂商
+        </el-button>
       </span>
 
       <el-dropdown>
@@ -17,11 +21,20 @@
         </el-dropdown-menu>
       </el-dropdown>
       <span class="main-block-add">
-        <i class="fa fa-plus-circle" style="font-size: 25px" @click="add"></i>
+        <el-button size="mini" type="success" style="position: relative; top: -5px" @click="add">
+          <i class="fa fa-plus" size="mini"></i>
+          配置
+        </el-button>
       </span>
     </div>
-    <div class="padding-full10" style="box-shadow: 0 0 5px 5px #434343;">
-      <div class="main-block-list" :style="mainStyle">
+    <div class="mian-tab-block">
+      <el-tabs v-if="tabs.length >0" v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane v-for="(item, index) in tabs" :key="index" :label="item" :name="item"></el-tab-pane>
+      </el-tabs>
+      <div v-else style="height: 40px;"></div>
+    </div>
+    <div class="mian-content-block">
+      <div class="main-block-list" style="padding: 10px 10px 10px 10px" :style="mainStyle">
         <div v-if="data.length <= 0">
           <el-empty description="暂无数据" style="margin-top: 20%"></el-empty>
         </div>
@@ -78,7 +91,15 @@
             <el-input v-model="fileNameFixed" style="width: 100px"></el-input>
           </el-form-item>
           <el-form-item label="厂商名称">
-            <el-input v-model="formConfig.厂商名称" class="width440" @input="changePname"></el-input>
+<!--            <el-input v-model="formConfig.厂商名称" class="width440" @input="changePname"></el-input>-->
+            <el-select :disabled="edit === 1" v-model="formConfig.厂商名称" class="width440" placeholder="请选择" @change="changePname">
+              <el-option
+                v-for="item in tabs"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="产品型号">
             <el-input v-model="formConfig.产品型号" class="width440" @input="changeMname"></el-input>
@@ -256,7 +277,15 @@
             <el-input v-model="fileNameFixed" style="width: 100px"></el-input>
           </el-form-item>
           <el-form-item label="厂商名称">
-            <el-input v-model="formSwitch.厂商名称" class="width300" @input="changePname"></el-input>
+<!--            <el-input v-model="formSwitch.厂商名称" class="width300" @input="changePname"></el-input>-->
+            <el-select :disabled="edit === 1" v-model="formSwitch.厂商名称" class="width440" placeholder="请选择" @change="changePname">
+              <el-option
+                v-for="item in tabs"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="产品型号">
             <el-input v-model="formSwitch.产品型号" class="width300" @input="changeMname"></el-input>
@@ -471,6 +500,20 @@
         <el-button size="small" type="primary" @click="copyOk">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      title="厂商设置"
+      :visible.sync="dialogPrdu"
+      width="350px"
+      @close="closeDialog">
+      <div>
+        <el-input v-model="inputPrduValue"></el-input>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="dialogPrdu = false">取 消</el-button>
+        <el-button size="small" type="primary" @click="copyPrduOk('add')">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -481,14 +524,18 @@ export default {
   components: {LightForm},
   data(){
     return {
+      activeName: '',
+      tabs: [],
       drawerAdd: false,
       dialogCopy: false,
+      dialogPrdu: false,
       data: [],
       edit: 0,
       devType: 'light',
       loading: false,
       copyStatus: false,
       inputCopyValue: '',
+      inputPrduValue: '',
       copyItem: {},
       mainStyle: {
         'height': 0,
@@ -570,7 +617,7 @@ export default {
   },
   mounted() {
     if (process.client){
-      this.mainStyle.height = window.innerHeight - 70 + 'px';
+      this.mainStyle.height = window.innerHeight - 115 + 'px';
     }
   },
   created() {
@@ -580,6 +627,7 @@ export default {
     }else if (this.devType == "switch"){
       this.titleName = "ISwitch配置设置";
     }
+    this.getPrdu();
     this.init();
   },
   methods: {
@@ -632,15 +680,44 @@ export default {
     init(){
       let params = {
         dev_type: this.devType,
+        activeName: this.activeName
       };
-      this.$axios.get('/proxy/list.php', {params: params}).then(res => {
+      this.data = [];
+      this.$axios.get('/proxy/list-group-by-manufacturer.php', {params: params}).then(res => {
         if (res.data.code == 200){
-          this.data = res.data.data;
+          let arr = [];
+          for (let item in res.data.data){
+            if (item == this.activeName){
+              this.data = res.data.data[item];
+            }
+          }
         }
       });
     },
+    getPrdu(){
+      this.$axios.get('/proxy/list-manufacturer.php').then(res => {
+        if (res.data.code == 200){
+          this.tabs = res.data.data;
+          if (res.data.data.length > 0){
+            this.activeName = res.data.data[0];
+          }else {
+            this.tabs = ['netmoon'];
+            this.activeName = 'netmoon';
+          }
+        }
+      });
+    },
+    handleClick(tab, event) {
+      this.activeName = tab.name;
+      this.init();
+    },
     changePname(data){
       this.fileNameArray[0] = data;
+      if (this.devType == "light"){
+        this.formConfig.厂商名称 = data;
+      }else if (this.devType == "light"){
+        this.formSwitch.厂商名称 = data;
+      }
       this.setFileName();
     },
     changeMname(data){
@@ -682,7 +759,18 @@ export default {
         });
       });
     },
+    addPrdu(){
+      this.dialogPrdu = true;
+    },
     add(){
+      if (this.tabs.length == 0){
+        this.$message({
+          message: "请先添加厂商数据",
+          type: 'warning'
+        });
+        return;
+      }
+
       this.edit = 0;
       let year = this.$moment().format("yyyy");
       let month = this.$moment().format("MM");
@@ -691,6 +779,7 @@ export default {
 
       if (this.devType == 'light'){
         //this.fileName = this.formConfig.厂商名称 + "-" + this.formConfig.输出平均电压 + "V" + "-" + this.formConfig.缺省选择最大电流 + "mA" + "-";
+        this.formConfig.厂商名称 = this.activeName ? this.activeName : 'netmoon';
         this.fileNameArray[0] = this.formConfig.厂商名称;
         this.fileNameArray[1] = this.formConfig.产品型号;
         this.fileNameArray[2] = this.goodsTime;
@@ -705,6 +794,7 @@ export default {
         this.setFileName();
       }else if (this.devType == 'switch'){
         //this.fileName = this.formSwitch.厂商名称 + "-";
+        this.formSwitch.厂商名称 = this.activeName ? this.activeName : 'netmoon';
         this.fileNameArray[0] = this.formSwitch.厂商名称;
         this.fileNameArray[1] = this.formSwitch.产品型号;
         this.fileNameArray[2] = this.goodsTime;
@@ -870,6 +960,33 @@ export default {
       //
       // });
     },
+    copyPrduOk(type){
+      if (this.inputPrduValue == ""){
+        this.$message({
+          message: "请填写厂商名称",
+          type: 'info'
+        });
+        return;
+      }
+      let _self = this;
+      let params = {
+        action: type,
+        manufacturer: this.inputPrduValue
+      };
+      params = this.$qs.stringify(params);
+      _self.$axios.post('/proxy/action-manufacturer.php', params).then(res => {
+        if (res.data.code == 200){
+          _self.init();
+          _self.getPrdu();
+          _self.dialogPrdu = false;
+        }else{
+          _self.$message({
+            message: res.data.desc,
+            type: 'info'
+          });
+        }
+      });
+    },
     copyOk(){
       let _self = this;
       let params = {
@@ -894,7 +1011,9 @@ export default {
     closeDialog(){
       this.copyItem = {};
       this.inputCopyValue = "";
+      this.inputPrduValue = "";
       this.dialogCopy = false;
+      this.dialogPrdu = false;
     },
     download(event, item){
       window.open('/proxy/download.php?file_name=' + item.fileName + "&dev_type=" + this.devType, "_self");
@@ -1240,13 +1359,21 @@ export default {
   margin: 0 auto;
   background: #F2F6FC;
 }
+.mian-tab-block{
+  background: #F2F6FC;
+  padding: 0px 10px;
+}
+.mian-content-block{
+  width: 100%;
+  background: #F2F6FC;
+}
 .main-block-title{
   font-size: 20px;
   font-weight: bold;
   text-align: center;
   background: #595959;
-  height: 45px;
-  line-height: 45px;
+  height: 50px;
+  line-height: 50px;
 }
 .main-block-list{
   margin-top: 0px;

@@ -250,3 +250,9 @@ span,div,button,label{
   padding: 5px 5px;
   font-size: 12px;
 }
+.el-tabs__header{
+  margin-bottom: 0px !important;
+}
+.el-tabs--border-card>.el-tabs__content {
+  padding: 0px !important;
+}
