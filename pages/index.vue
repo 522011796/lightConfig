@@ -1,38 +1,79 @@
 <template>
   <div class="mian-block" ref="indexRef">
     <div class="main-block-title">
-      <span class="main-block-logout">
-        <el-button size="mini" @click="logout">
-          <span>退出</span>
-        </el-button>
-        <el-button size="mini" type="warning" @click="addPrdu">
-          <i class="fa fa-plus" size="mini"></i>
-          厂商
-        </el-button>
-      </span>
+      <el-row>
+        <el-col :span="8">
+          <span class="main-block-logout" style="position: relative; top: 8px">
+            <el-button size="mini" @click="logout">
+              <span>退出</span>
+            </el-button>
+          </span>
+        </el-col>
+        <el-col :span="8">
+          <div>
+            <el-dropdown>
+              <span class="el-dropdown-link color-ffffff font-size-15">
+                {{ titleName }}<i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item @click.native="changeDeviceType($event, 'light')">ILight配置设置</el-dropdown-item>
+                <el-dropdown-item @click.native="changeDeviceType($event, 'switch')">ISwitch配置设置</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+            <div>
+              <el-dropdown trigger="click" size="mini">
+                <span class="el-dropdown-link color-ffffff">
+                  {{ activeName }}<i class="el-icon-caret-bottom"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item v-for="(item, index) in tabs" :key="index" @click.native="handleChangeTabs($event, item)">{{item}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </div>
+          </div>
+        </el-col>
+        <el-col :span="8" class="textRight">
+<!--          <el-dropdown trigger="click" size="mini" split-button type="primary" @click="addPrdu" style="position: relative; top: 8px">-->
+<!--            <i class="fa fa-plus" size="mini"></i>-->
+<!--            厂商-->
+<!--            <el-dropdown-menu slot="dropdown">-->
+<!--              <el-dropdown-item v-for="(item, index) in tabs" :key="index" @click.native="handleChangeTabs($event, item)">{{item}}</el-dropdown-item>-->
+<!--            </el-dropdown-menu>-->
+<!--          </el-dropdown>-->
+          <el-button size="mini" type="warning" style="position: relative; top: 8px" @click="addPrdu">
+            <i class="fa fa-plus" size="mini"></i>
+            厂商
+          </el-button>
+          <el-button size="mini" type="success" style="position: relative; top: 8px" @click="add">
+            <i class="fa fa-plus" size="mini"></i>
+            配置
+          </el-button>
+        </el-col>
+      </el-row>
 
-      <el-dropdown>
-        <span class="el-dropdown-link color-ffffff font-size-18">
-          {{ titleName }}<i class="el-icon-arrow-down el-icon--right"></i>
-        </span>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="changeDeviceType($event, 'light')">ILight配置设置</el-dropdown-item>
-          <el-dropdown-item @click.native="changeDeviceType($event, 'switch')">ISwitch配置设置</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+
       <span class="main-block-add">
-        <el-button size="mini" type="success" style="position: relative; top: -5px" @click="add">
-          <i class="fa fa-plus" size="mini"></i>
-          配置
-        </el-button>
+<!--        <el-button size="mini" type="warning" style="position: relative; top: -5px" @click="addPrdu">-->
+<!--          <i class="fa fa-plus" size="mini"></i>-->
+<!--          厂商-->
+<!--        </el-button>-->
+
       </span>
     </div>
-    <div class="mian-tab-block">
-      <el-tabs v-if="tabs.length >0" v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane v-for="(item, index) in tabs" :key="index" :label="item" :name="item"></el-tab-pane>
-      </el-tabs>
-      <div v-else style="height: 40px;"></div>
-    </div>
+<!--    <div class="mian-tab-block" style="position: relative">-->
+<!--      <el-tabs v-if="tabs.length >0" v-model="activeName" @tab-click="handleClick">-->
+<!--        <el-tab-pane v-for="(item, index) in tabs" :key="index" v-if="index <= 9" :label="item" :name="item"></el-tab-pane>-->
+<!--      </el-tabs>-->
+<!--      <el-dropdown trigger="click" style="position: absolute; right: 10px;top: 0px">-->
+<!--        <span class="el-dropdown-link font-size-12 color-warning">-->
+<!--          更多<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
+<!--        </span>-->
+<!--        <el-dropdown-menu slot="dropdown">-->
+<!--          <el-dropdown-item v-for="(item, index) in tabs" :key="index" v-if="index > 9" @click.native="handleChangeTabs($event, item)">{{item}}</el-dropdown-item>-->
+<!--        </el-dropdown-menu>-->
+<!--      </el-dropdown>-->
+<!--      <div v-else style="height: 40px;"></div>-->
+<!--    </div>-->
     <div class="mian-content-block">
       <div class="main-block-list" style="padding: 10px 10px 10px 10px" :style="mainStyle">
         <div v-if="data.length <= 0">
@@ -92,7 +133,7 @@
           </el-form-item>
           <el-form-item label="厂商名称">
 <!--            <el-input v-model="formConfig.厂商名称" class="width440" @input="changePname"></el-input>-->
-            <el-select :disabled="edit === 1" v-model="formConfig.厂商名称" class="width440" placeholder="请选择" @change="changePname">
+            <el-select :disabled="edit === 1 || edit === 0" v-model="formConfig.厂商名称" class="width440" placeholder="请选择" @change="changePname">
               <el-option
                 v-for="item in tabs"
                 :key="item"
@@ -278,7 +319,7 @@
           </el-form-item>
           <el-form-item label="厂商名称">
 <!--            <el-input v-model="formSwitch.厂商名称" class="width300" @input="changePname"></el-input>-->
-            <el-select :disabled="edit === 1" v-model="formSwitch.厂商名称" class="width440" placeholder="请选择" @change="changePname">
+            <el-select :disabled="edit === 1 || edit === 0" v-model="formSwitch.厂商名称" class="width440" placeholder="请选择" @change="changePname">
               <el-option
                 v-for="item in tabs"
                 :key="item"
@@ -524,6 +565,7 @@ export default {
   components: {LightForm},
   data(){
     return {
+      prduName: '',
       activeName: '',
       tabs: [],
       drawerAdd: false,
@@ -617,7 +659,7 @@ export default {
   },
   mounted() {
     if (process.client){
-      this.mainStyle.height = window.innerHeight - 115 + 'px';
+      this.mainStyle.height = window.innerHeight - 80 + 'px';
     }
   },
   created() {
@@ -627,10 +669,13 @@ export default {
     }else if (this.devType == "switch"){
       this.titleName = "ISwitch配置设置";
     }
-    this.getPrdu();
-    this.init();
+    this.initConfig();
   },
   methods: {
+    async initConfig(){
+      await this.getPrdu();
+      this.init();
+    },
     setFileName(){
       this.fileName = "";
       if (this.devType == "switch"){
@@ -695,11 +740,13 @@ export default {
       });
     },
     getPrdu(){
+      this.prduName = '厂商';
       this.$axios.get('/proxy/list-manufacturer.php').then(res => {
         if (res.data.code == 200){
           this.tabs = res.data.data;
           if (res.data.data.length > 0){
             this.activeName = res.data.data[0];
+            this.prduName = res.data.data[0];
           }else {
             this.tabs = ['netmoon'];
             this.activeName = 'netmoon';
@@ -751,6 +798,10 @@ export default {
     changePMA(data){
       this.fileNameArray[7] = data;
       this.setFileName();
+    },
+    handleChangeTabs(event, data){
+      this.activeName = data;
+      this.init();
     },
     logout(){
       this.$axios.get('/proxy/logout.php').then(res => {
@@ -1362,6 +1413,8 @@ export default {
 .mian-tab-block{
   background: #F2F6FC;
   padding: 0px 10px;
+  height: 45px;
+  line-height: 45px;
 }
 .mian-content-block{
   width: 100%;
@@ -1373,7 +1426,7 @@ export default {
   text-align: center;
   background: #595959;
   height: 50px;
-  line-height: 50px;
+  /*line-height: 50px;*/
 }
 .main-block-list{
   margin-top: 0px;
