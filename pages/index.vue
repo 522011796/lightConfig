@@ -18,6 +18,7 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item @click.native="changeDeviceType($event, 'light')">ILight配置设置</el-dropdown-item>
                 <el-dropdown-item @click.native="changeDeviceType($event, 'switch')">ISwitch配置设置</el-dropdown-item>
+                <el-dropdown-item @click.native="changeDeviceType($event, 'repeater')">中继器配置设置</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <div>
@@ -525,6 +526,51 @@
             </el-radio-group>
           </el-form-item>
         </el-form>
+
+        <el-form v-if="devType == 'repeater'" ref="formChange" :model="formChange" label-width="150px">
+          <el-form-item label="文件名称">
+            <el-input v-model="fileName" style="width: 300px" disabled></el-input>
+            -
+            <el-input v-model="fileNameFixed" style="width: 100px"></el-input>
+          </el-form-item>
+          <el-form-item label="厂商名称">
+            <!--            <el-input v-model="formSwitch.厂商名称" class="width300" @input="changePname"></el-input>-->
+            <el-select :disabled="edit === 1 || edit === 0" v-model="formChange.厂商名称" class="width440" placeholder="请选择" @change="changePname">
+              <el-option
+                v-for="item in tabs"
+                :key="item"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="产品型号">
+            <el-input v-model="formChange.产品型号" class="width300" @input="changeMname"></el-input>
+          </el-form-item>
+          <el-form-item label="硬件制造日期">
+            <el-date-picker
+              style="width: 300px"
+              v-model="createTime"
+              type="month"
+              format="yyyy-MM"
+              placeholder="选择周"
+              value-format="yyyy-MM"
+              :picker-options="{'firstDayOfWeek': 1}">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="产品出厂日期">
+            <el-date-picker
+              style="width: 300px"
+              v-model="goodsTime"
+              type="month"
+              format="yyyy-MM"
+              value-format="yyyy-MM"
+              placeholder="选择周"
+              :picker-options="{'firstDayOfWeek': 1}"
+              @change="changeGoodsTime">
+            </el-date-picker>
+          </el-form-item>
+        </el-form>
       </div>
     </el-drawer>
 
@@ -654,6 +700,12 @@ export default {
         '缺省继电器2对应按键': '按键2',
         '缺省继电器3对应按键': '按键3',
         '缺省继电器4对应按键': '按键4'
+      },
+      formChange: {
+        '厂商名称': 'netmoon',
+        '产品型号': 'IRepeater-X1',
+        '硬件制造日期': '',
+        '产品出厂日期': '',
       }
     }
   },
@@ -668,6 +720,8 @@ export default {
       this.titleName = "ILight配置设置";
     }else if (this.devType == "switch"){
       this.titleName = "ISwitch配置设置";
+    }else if (this.devType == "repeater"){
+      this.titleName = "中继器配置设置";
     }
     this.initConfig();
   },
@@ -720,6 +774,13 @@ export default {
             this.fileName += "-";
           }
         }
+      }else if (this.devType == "repeater"){
+        for (let i = 0; i < this.fileNameArray.length; i++){
+          this.fileName += this.fileNameArray[i];
+          if (this.fileNameArray.length-1 != i){
+            this.fileName += "-";
+          }
+        }
       }
     },
     init(){
@@ -764,6 +825,8 @@ export default {
         this.formConfig.厂商名称 = data;
       }else if (this.devType == "light"){
         this.formSwitch.厂商名称 = data;
+      }else if (this.devType == "repeater"){
+        this.formChange.厂商名称 = data;
       }
       this.setFileName();
     },
@@ -852,6 +915,12 @@ export default {
         this.fileNameArray[3] = this.formSwitch.按键数量Bak;
         this.fileNameArray[4] = this.formSwitch.继电器数量Bak;
         this.setFileName();
+      }else if (this.devType == 'repeater'){
+        this.formChange.厂商名称 = this.activeName ? this.activeName : 'netmoon';
+        this.fileNameArray[0] = this.formChange.厂商名称;
+        this.fileNameArray[1] = this.formChange.产品型号;
+        this.fileNameArray[2] = this.goodsTime;
+        this.setFileName();
       }
       //this.fileNameFixed = "file" + parseInt(this.data.length + 1);
       this.drawerAdd = true;
@@ -932,6 +1001,24 @@ export default {
           this.fileNameArray[4] = this.formSwitch.继电器数量Bak;
 
           if (filename[filename.length - 1].substring(1).replace(/.copy/g, "") != this.formSwitch.继电器数量Bak){
+            this.fileNameFixed = filename[filename.length - 1] == undefined ? "" : filename[filename.length - 1].replace(/.copy/g, "");
+          }
+        }else if (this.devType == 'repeater'){
+          let filename = item.fileName.split("-");
+          this.formChange = JSON.parse(res.data.data);
+
+          let year1 = '20' + this.formChange.硬件制造日期.substring(0,2);
+          let year2 = '20' + this.formChange.产品出厂日期.substring(0,2);
+          let time1 = year1 +"-"+ this.formChange.硬件制造日期.substring(2,4);
+          let time2 = year2 +"-"+ this.formChange.产品出厂日期.substring(2,4);
+          this.createTime = time1;
+          this.goodsTime = time2;
+
+          this.fileNameArray[0] = this.formChange.厂商名称;
+          this.fileNameArray[1] = this.formChange.产品型号;
+          this.fileNameArray[2] = time2;
+
+          if (filename[filename.length - 1].replace(/.copy/g, "") != this.formChange.产品出厂日期.substring(2,4)){
             this.fileNameFixed = filename[filename.length - 1] == undefined ? "" : filename[filename.length - 1].replace(/.copy/g, "");
           }
         }
@@ -1151,6 +1238,18 @@ export default {
         this.formSwitch.缺省继电器4对应按键 = this.formSwitch.缺省继电器4对应按键;
         this.formSwitch.按键数量Bak = undefined;
         this.formSwitch.继电器数量Bak = undefined;
+      }else if (this.devType == 'repeater'){
+        this.formChange.硬件制造日期 = this.createTime.substring(2,4) + this.createTime.substring(5,7);
+        this.formChange.产品出厂日期 = this.goodsTime.substring(2,4) + this.goodsTime.substring(5,7);
+        let fileName = this.fileName;
+        if (this.fileName == ''){
+          this.$message({
+            message: "文件名称不能为空！",
+            type: 'warning'
+          });
+          return;
+          // fileName = this.formSwitch.厂商名称
+        }
       }
 
       if (this.edit == 0){
@@ -1173,6 +1272,8 @@ export default {
         params['data'] = JSON.stringify(this.formConfig);
       }else if (this.devType == 'switch'){
         params['data'] = JSON.stringify(this.formSwitch);
+      }else if (this.devType == 'repeater'){
+        params['data'] = JSON.stringify(this.formChange);
       }
       params = this.$qs.stringify(params);
       this.loading = true;
@@ -1311,6 +1412,8 @@ export default {
         this.titleName = "ILight配置设置";
       }else if (type == "switch"){
         this.titleName = "ISwitch配置设置";
+      }else if (type == 'repeater'){
+        this.titleName = "中继器配置设置";
       }
       this.devType = type;
       this.$router.push({ query: {devType: type} });
@@ -1389,6 +1492,13 @@ export default {
           '缺省继电器2对应按键': '按键2',
           '缺省继电器3对应按键': '按键3',
           '缺省继电器4对应按键': '按键4'
+        }
+
+        this.formChange = {
+          '厂商名称': 'netmoon',
+          '产品型号': 'IRepeater-X1',
+          '硬件制造日期': '',
+          '产品出厂日期': '',
         }
       }
     }
