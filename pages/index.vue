@@ -928,9 +928,9 @@ export default {
         }
       });
     },
-    getPrdu(){
+    async getPrdu(){
       this.prduName = '厂商';
-      this.$axios.get('/proxy/list-manufacturer.php').then(res => {
+      await this.$axios.get('/proxy/list-manufacturer.php').then(res => {
         if (res.data.code == 200){
           this.tabs = res.data.data;
           let key = 'netmoon';
