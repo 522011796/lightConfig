@@ -19,6 +19,7 @@
                 <el-dropdown-item @click.native="changeDeviceType($event, 'light')">ILight配置设置</el-dropdown-item>
                 <el-dropdown-item @click.native="changeDeviceType($event, 'switch')">ISwitch配置设置</el-dropdown-item>
                 <el-dropdown-item @click.native="changeDeviceType($event, 'repeater')">中继器配置设置</el-dropdown-item>
+                <el-dropdown-item @click.native="changeDeviceType($event, 'sensor')">传感器配置设置</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <div>
@@ -136,8 +137,8 @@
 <!--            <el-input v-model="formConfig.厂商名称" class="width440" @input="changePname"></el-input>-->
             <el-select :disabled="edit === 1 || edit === 0" v-model="formConfig.厂商名称" class="width440" placeholder="请选择" @change="changePname">
               <el-option
-                v-for="item in tabs"
-                :key="item"
+                v-for="(item, index) in tabs"
+                :key="index"
                 :label="item"
                 :value="item">
               </el-option>
@@ -322,8 +323,8 @@
 <!--            <el-input v-model="formSwitch.厂商名称" class="width300" @input="changePname"></el-input>-->
             <el-select :disabled="edit === 1 || edit === 0" v-model="formSwitch.厂商名称" class="width440" placeholder="请选择" @change="changePname">
               <el-option
-                v-for="item in tabs"
-                :key="item"
+                v-for="(item, index) in tabs"
+                :key="index"
                 :label="item"
                 :value="item">
               </el-option>
@@ -537,8 +538,8 @@
             <!--            <el-input v-model="formSwitch.厂商名称" class="width300" @input="changePname"></el-input>-->
             <el-select :disabled="edit === 1 || edit === 0" v-model="formChange.厂商名称" class="width440" placeholder="请选择" @change="changePname">
               <el-option
-                v-for="item in tabs"
-                :key="item"
+                v-for="(item, index) in tabs"
+                :key="index"
                 :label="item"
                 :value="item">
               </el-option>
@@ -571,6 +572,96 @@
             </el-date-picker>
           </el-form-item>
         </el-form>
+        <el-form v-if="devType == 'sensor'" ref="formChange" :model="formSensor" label-width="150px">
+          <el-form-item label="文件名称">
+            <el-input v-model="fileName" style="width: 300px" disabled></el-input>
+            -
+            <el-input v-model="fileNameFixed" style="width: 100px"></el-input>
+          </el-form-item>
+          <el-form-item label="厂商名称">
+            <!--            <el-input v-model="formSwitch.厂商名称" class="width300" @input="changePname"></el-input>-->
+            <el-select :disabled="edit === 1 || edit === 0" v-model="formSensor.厂商名称" class="width300" placeholder="请选择" @change="changePname">
+              <el-option
+                v-for="(item, index) in tabs"
+                :key="index"
+                :label="item"
+                :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="产品型号">
+            <el-input v-model="formSensor.产品型号" class="width300" @input="changeMname"></el-input>
+          </el-form-item>
+          <el-form-item label="硬件制造日期">
+            <el-date-picker
+              style="width: 300px"
+              v-model="createTime"
+              type="month"
+              format="yyyy-MM"
+              placeholder="选择周"
+              value-format="yyyy-MM"
+              :picker-options="{'firstDayOfWeek': 1}">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="产品出厂日期">
+            <el-date-picker
+              style="width: 300px"
+              v-model="goodsTime"
+              type="month"
+              format="yyyy-MM"
+              value-format="yyyy-MM"
+              placeholder="选择周"
+              :picker-options="{'firstDayOfWeek': 1}"
+              @change="changeGoodsTime">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="射频大功率">
+            <el-radio-group v-model="formSensor.射频大功率">
+              <el-radio label="NO"></el-radio>
+              <el-radio label="YES"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="禁止联网">
+            <el-radio-group v-model="formSensor.禁止联网">
+              <el-radio label="NO"></el-radio>
+              <el-radio label="YES"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="人体移动感应">
+            <el-radio-group v-model="formSensor.人体移动感应">
+              <el-radio label="NO"></el-radio>
+              <el-radio label="YES"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="人体存在感应">
+            <el-radio-group v-model="formSensor.人体存在感应">
+              <el-radio label="NO"></el-radio>
+              <el-radio label="YES"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="光照度感应">
+            <el-radio-group v-model="formSensor.光照度感应">
+              <el-radio label="NO"></el-radio>
+              <el-radio label="YES"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="温湿度感应">
+            <el-radio-group v-model="formSensor.温湿度感应">
+              <el-radio label="NO"></el-radio>
+              <el-radio label="YES"></el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="第三方硬件基板">
+            <el-select v-model="formSensor.第三方硬件基板" class="width300" placeholder="请选择" @change="changeThirdBan">
+              <el-option
+                v-for="(item, index) in thirdBan"
+                :key="index"
+                :label="item.label"
+                :value="item.label">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
       </div>
     </el-drawer>
 
@@ -589,12 +680,26 @@
     </el-dialog>
 
     <el-dialog
+      custom-class="custom-dialog"
       title="厂商设置"
       :visible.sync="dialogPrdu"
       width="350px"
+      :show-close="false"
       @close="closeDialog">
+      <div slot="title">
+        <div class="font-size-15 fontBold color-333333">厂商设置</div>
+      </div>
       <div>
-        <el-input v-model="inputPrduValue"></el-input>
+        <div>
+          <el-row>
+            <el-col :span="6" v-for="(item, index) in tabs" :key="item">
+              <el-tag class="moon-ellipsis-class" size="mini" style="width: 70px !important;">{{item}}</el-tag>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="marginTop10">
+          <el-input v-model="inputPrduValue"></el-input>
+        </div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="dialogPrdu = false">取 消</el-button>
@@ -614,6 +719,7 @@ export default {
       prduName: '',
       activeName: '',
       tabs: [],
+      thirdBan: [{label: '麦乐克红外幕帘', value: '麦乐克红外幕帘', text: 'mir_pir'}],
       drawerAdd: false,
       dialogCopy: false,
       dialogPrdu: false,
@@ -706,6 +812,19 @@ export default {
         '产品型号': 'IRepeater-X1',
         '硬件制造日期': '',
         '产品出厂日期': '',
+      },
+      formSensor: {
+        '厂商名称': 'netmoon',
+        '产品型号': 'ISensor-X1',
+        '硬件制造日期': '',
+        '产品出厂日期': '',
+        '射频大功率': 'YES',
+        "禁止联网" : "NO",
+        '人体移动感应': 'NO',
+        '人体存在感应': 'NO',
+        '光照度感应': 'NO',
+        '温湿度感应': 'NO',
+        '第三方硬件基板': '麦乐克红外幕帘',
       }
     }
   },
@@ -722,6 +841,8 @@ export default {
       this.titleName = "ISwitch配置设置";
     }else if (this.devType == "repeater"){
       this.titleName = "中继器配置设置";
+    }else if (this.devType == "sensor"){
+      this.titleName = "传感器配置设置";
     }
     this.initConfig();
   },
@@ -781,6 +902,13 @@ export default {
             this.fileName += "-";
           }
         }
+      }else if (this.devType == "sensor"){
+        for (let i = 0; i < this.fileNameArray.length; i++){
+          this.fileName += this.fileNameArray[i];
+          if (this.fileNameArray.length-1 != i){
+            this.fileName += "-";
+          }
+        }
       }
     },
     init(){
@@ -827,6 +955,15 @@ export default {
         this.formSwitch.厂商名称 = data;
       }else if (this.devType == "repeater"){
         this.formChange.厂商名称 = data;
+      }else if (this.devType == "sensor"){
+        this.formSensor.厂商名称 = data;
+      }
+      this.setFileName();
+    },
+    changeThirdBan(data){
+      this.formSensor.第三方硬件基板 = data;
+      if (data == '麦乐克红外幕帘'){
+        this.fileNameArray[3] = 'mir_pir';
       }
       this.setFileName();
     },
@@ -920,6 +1057,15 @@ export default {
         this.fileNameArray[0] = this.formChange.厂商名称;
         this.fileNameArray[1] = this.formChange.产品型号;
         this.fileNameArray[2] = this.goodsTime;
+        this.setFileName();
+      }else if (this.devType == 'sensor'){
+        this.formSensor.厂商名称 = this.activeName ? this.activeName : 'netmoon';
+        this.fileNameArray[0] = this.formSensor.厂商名称;
+        this.fileNameArray[1] = this.formSensor.产品型号;
+        this.fileNameArray[2] = this.goodsTime;
+        if (this.formSensor.第三方硬件基板 == "麦乐克红外幕帘"){
+          this.fileNameArray[3] = 'mir_pir';
+        }
         this.setFileName();
       }
       //this.fileNameFixed = "file" + parseInt(this.data.length + 1);
@@ -1019,6 +1165,30 @@ export default {
           this.fileNameArray[2] = time2;
 
           if (filename[filename.length - 1].replace(/.copy/g, "") != this.formChange.产品出厂日期.substring(2,4)){
+            this.fileNameFixed = filename[filename.length - 1] == undefined ? "" : filename[filename.length - 1].replace(/.copy/g, "");
+          }
+        }else if (this.devType == 'sensor'){
+          let filename = item.fileName.split("-");
+          let fileFixed = "";
+          this.formSensor = JSON.parse(res.data.data);
+
+          let year1 = '20' + this.formSensor.硬件制造日期.substring(0,2);
+          let year2 = '20' + this.formSensor.产品出厂日期.substring(0,2);
+          let time1 = year1 +"-"+ this.formSensor.硬件制造日期.substring(2,4);
+          let time2 = year2 +"-"+ this.formSensor.产品出厂日期.substring(2,4);
+          this.createTime = time1;
+          this.goodsTime = time2;
+
+          if (this.formSensor.第三方硬件基板 == "麦乐克红外幕帘"){
+            fileFixed = "mir_pir";
+          }
+
+          this.fileNameArray[0] = this.formSensor.厂商名称;
+          this.fileNameArray[1] = this.formSensor.产品型号;
+          this.fileNameArray[2] = time2;
+          this.fileNameArray[3] = fileFixed;
+
+          if (filename[filename.length - 1].replace(/.copy/g, "") != fileFixed){
             this.fileNameFixed = filename[filename.length - 1] == undefined ? "" : filename[filename.length - 1].replace(/.copy/g, "");
           }
         }
@@ -1250,6 +1420,18 @@ export default {
           return;
           // fileName = this.formSwitch.厂商名称
         }
+      }else if (this.devType == 'sensor'){
+        this.formSensor.硬件制造日期 = this.createTime.substring(2,4) + this.createTime.substring(5,7);
+        this.formSensor.产品出厂日期 = this.goodsTime.substring(2,4) + this.goodsTime.substring(5,7);
+        let fileName = this.fileName;
+        if (this.fileName == ''){
+          this.$message({
+            message: "文件名称不能为空！",
+            type: 'warning'
+          });
+          return;
+          // fileName = this.formSwitch.厂商名称
+        }
       }
 
       if (this.edit == 0){
@@ -1274,6 +1456,8 @@ export default {
         params['data'] = JSON.stringify(this.formSwitch);
       }else if (this.devType == 'repeater'){
         params['data'] = JSON.stringify(this.formChange);
+      }else if (this.devType == 'sensor'){
+        params['data'] = JSON.stringify(this.formSensor);
       }
       params = this.$qs.stringify(params);
       this.loading = true;
@@ -1414,6 +1598,8 @@ export default {
         this.titleName = "ISwitch配置设置";
       }else if (type == 'repeater'){
         this.titleName = "中继器配置设置";
+      }else if (type == 'sensor'){
+        this.titleName = "传感器配置设置";
       }
       this.devType = type;
       this.$router.push({ query: {devType: type} });
@@ -1500,6 +1686,20 @@ export default {
           '硬件制造日期': '',
           '产品出厂日期': '',
         }
+
+        this.formSensor = {
+          '厂商名称': 'netmoon',
+          '产品型号': 'ISensor-X1',
+          '硬件制造日期': '',
+          '产品出厂日期': '',
+          '射频大功率': 'YES',
+          "禁止联网" : "NO",
+          '人体移动感应': 'NO',
+          '人体存在感应': 'NO',
+          '光照度感应': 'NO',
+          '温湿度感应': 'NO',
+          '第三方硬件基板': '麦乐克红外幕帘',
+        };
       }
     }
   },

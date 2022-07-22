@@ -55,6 +55,14 @@ export default {
         {
           value: 'switch',
           label: '开关'
+        },
+        {
+          value: 'repeater',
+          label: '中继器'
+        },
+        {
+          value: 'sensor',
+          label: '传感器'
         }
       ],
       form:{

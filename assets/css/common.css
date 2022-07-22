@@ -256,3 +256,12 @@ span,div,button,label{
 .el-tabs--border-card>.el-tabs__content {
   padding: 0px !important;
 }
+.custom-dialog .el-dialog__header {
+  padding: 10px 10px 10px 10px;
+}
+.custom-dialog .el-dialog__body {
+  padding: 15px 20px;
+  color: #606266;
+  font-size: 14px;
+  word-break: break-all;
+}
