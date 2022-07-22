@@ -933,6 +933,15 @@ export default {
       this.$axios.get('/proxy/list-manufacturer.php').then(res => {
         if (res.data.code == 200){
           this.tabs = res.data.data;
+          let key = 'netmoon';
+          for (var i = 0; i < res.data.data.length; i++) {
+            if (res.data.data[i] === key) {
+              res.data.data.splice(i, 1);
+              break;
+            }
+          }
+          res.data.data.unshift(key);
+
           if (res.data.data.length > 0){
             this.activeName = res.data.data[0];
             this.prduName = res.data.data[0];
