@@ -526,6 +526,14 @@
               <el-radio v-for="(item, index) in formSwitch.继电器数量Bak" :key="index" :label="`按键${index+1}`"></el-radio>
             </el-radio-group>
           </el-form-item>
+          <el-form-item label="第三方硬件基板">
+            <el-select v-model="formSwitch.第三方硬件基板" class="width300" placeholder="请选择" @change="changeSwitchThirdBan($event)">
+              <el-option v-for="(item, index) in thirdSwitchBan" :key="index" :label="item.label" :value="item.value"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="人体感应模块参数">
+            <el-input v-model="formSwitch.人体感应模块参数" class="width300"></el-input>
+          </el-form-item>
         </el-form>
 
         <el-form v-if="devType == 'repeater'" ref="formChange" :model="formChange" label-width="150px">
@@ -720,6 +728,7 @@ export default {
       activeName: '',
       tabs: [],
       thirdBan: [{label: '麦乐克红外幕帘', value: '麦乐克红外幕帘', text: 'mir_pir'}],
+      thirdSwitchBan: [{label: '网月', value: '网月', text: '网月'}],
       drawerAdd: false,
       dialogCopy: false,
       dialogPrdu: false,
@@ -805,7 +814,9 @@ export default {
         '缺省继电器1对应按键': '按键1',
         '缺省继电器2对应按键': '按键2',
         '缺省继电器3对应按键': '按键3',
-        '缺省继电器4对应按键': '按键4'
+        '缺省继电器4对应按键': '按键4',
+        '第三方硬件基板': '网月',
+        '人体感应模块参数': ''
       },
       formChange: {
         '厂商名称': 'netmoon',
@@ -1142,6 +1153,8 @@ export default {
           this.formSwitch['按键数量'] = 8;
           this.formSwitch['继电器数量'] = 4;
 
+          this.formSwitch['第三方硬件基板'] = this.formSwitch['第三方硬件基板'] ? this.formSwitch['第三方硬件基板'] : "网月";
+
           let year1 = '20' + this.formSwitch.硬件制造日期.substring(0,2);
           let year2 = '20' + this.formSwitch.产品出厂日期.substring(0,2);
           let time1 = year1 +"-"+ this.formSwitch.硬件制造日期.substring(2,4);
@@ -1393,6 +1406,22 @@ export default {
           return;
           // fileName = this.formSwitch.厂商名称
         }
+        if (this.formSwitch.人体感应模块参数 != ""){
+          let req = /^[A-Fa-f0-9]+$/;
+          if (this.formSwitch.人体感应模块参数.length % 2 != 0){
+            this.$message({
+              message: "人体感应模块参数填写有误，请确认是否为偶数位",
+              type: 'warning'
+            });
+            return;
+          }else if (!req.test(this.formSwitch.人体感应模块参数)){
+            this.$message({
+              message: "人体感应模块参数必须为16进制！",
+              type: 'warning'
+            });
+            return;
+          }
+        }
         this.formSwitch.按键数量 = parseInt(this.formSwitch.按键数量Bak);
         this.formSwitch.继电器数量 = parseInt(this.formSwitch.继电器数量Bak);
         this.formSwitch.缺省按键1定义 = this.formSwitch.缺省按键1定义;
@@ -1415,6 +1444,8 @@ export default {
         this.formSwitch.缺省继电器2对应按键 = this.formSwitch.缺省继电器2对应按键;
         this.formSwitch.缺省继电器3对应按键 = this.formSwitch.缺省继电器3对应按键;
         this.formSwitch.缺省继电器4对应按键 = this.formSwitch.缺省继电器4对应按键;
+        this.formSwitch.第三方硬件基板 = this.formSwitch.第三方硬件基板;
+        this.formSwitch.人体感应模块参数 = this.formSwitch.人体感应模块参数;
         this.formSwitch.按键数量Bak = undefined;
         this.formSwitch.继电器数量Bak = undefined;
       }else if (this.devType == 'repeater'){
@@ -1600,6 +1631,9 @@ export default {
         this.formSwitch.按键8硬件管脚 = data;
       }
     },
+    changeSwitchThirdBan(data){
+      this.formSwitch.第三方硬件基板 = data;
+    },
     changeDeviceType(event, type){
       if (type == "light"){
         this.titleName = "ILight配置设置";
@@ -1686,7 +1720,9 @@ export default {
           '缺省继电器1对应按键': '按键1',
           '缺省继电器2对应按键': '按键2',
           '缺省继电器3对应按键': '按键3',
-          '缺省继电器4对应按键': '按键4'
+          '缺省继电器4对应按键': '按键4',
+          '第三方硬件基板': '网月',
+          '人体感应模块参数': ''
         }
 
         this.formChange = {
