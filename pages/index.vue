@@ -534,6 +534,9 @@
           <el-form-item label="人体感应模块参数">
             <el-input v-model="formSwitch.人体感应模块参数" class="width300"></el-input>
           </el-form-item>
+          <el-form-item label="人体感应灵敏度">
+            <el-input v-model="formSwitch.人体感应灵敏度" maxlength="3" placeholder="范围:0-100" class="width300"></el-input>
+          </el-form-item>
         </el-form>
 
         <el-form v-if="devType == 'repeater'" ref="formChange" :model="formChange" label-width="150px">
@@ -816,7 +819,8 @@ export default {
         '缺省继电器3对应按键': '按键3',
         '缺省继电器4对应按键': '按键4',
         '第三方硬件基板': '网月',
-        '人体感应模块参数': ''
+        '人体感应模块参数': '',
+        '人体感应灵敏度':'100'
       },
       formChange: {
         '厂商名称': 'netmoon',
@@ -1148,12 +1152,14 @@ export default {
         }else if (this.devType == "switch"){
           let filename = item.fileName.split("-");
           this.formSwitch = JSON.parse(res.data.data);
+          this.formSwitchTemp = JSON.parse(JSON.stringify(JSON.parse(res.data.data)));
           this.formSwitch['按键数量Bak'] = this.formSwitch.按键数量;
           this.formSwitch['继电器数量Bak'] = this.formSwitch.继电器数量;
           this.formSwitch['按键数量'] = 8;
           this.formSwitch['继电器数量'] = 4;
 
           this.formSwitch['第三方硬件基板'] = this.formSwitch['第三方硬件基板'] ? this.formSwitch['第三方硬件基板'] : "网月";
+          this.$set(this.formSwitch, '人体感应灵敏度', this.formSwitch['人体感应灵敏度'] ? this.formSwitch['人体感应灵敏度'] * 100 : "100");
 
           let year1 = '20' + this.formSwitch.硬件制造日期.substring(0,2);
           let year2 = '20' + this.formSwitch.产品出厂日期.substring(0,2);
@@ -1422,6 +1428,27 @@ export default {
             return;
           }
         }
+        if (this.formSwitch.人体感应灵敏度 == ""){
+          this.$message({
+            message: "请填写人体感应灵敏度！",
+            type: 'warning'
+          });
+          return;
+        }else if (this.formSwitch.人体感应灵敏度 != ""){
+          let req = /^(?:0|[1-9][0-9]?|100)$/;
+          if (!req.test(this.formSwitch.人体感应灵敏度)){
+            this.$message({
+              message: "人体感应灵敏度范围:0-100",
+              type: 'warning'
+            });
+            return;
+          }
+        }
+
+        let bodySersonValue = this.formSwitch.人体感应灵敏度;
+        let bodySersonValueTemp = (bodySersonValue/100).toFixed(2);
+
+
         this.formSwitch.按键数量 = parseInt(this.formSwitch.按键数量Bak);
         this.formSwitch.继电器数量 = parseInt(this.formSwitch.继电器数量Bak);
         this.formSwitch.缺省按键1定义 = this.formSwitch.缺省按键1定义;
@@ -1446,6 +1473,7 @@ export default {
         this.formSwitch.缺省继电器4对应按键 = this.formSwitch.缺省继电器4对应按键;
         this.formSwitch.第三方硬件基板 = this.formSwitch.第三方硬件基板;
         this.formSwitch.人体感应模块参数 = this.formSwitch.人体感应模块参数;
+        this.formSwitch.人体感应灵敏度 = bodySersonValueTemp;
         this.formSwitch.按键数量Bak = undefined;
         this.formSwitch.继电器数量Bak = undefined;
       }else if (this.devType == 'repeater'){
@@ -1722,7 +1750,8 @@ export default {
           '缺省继电器3对应按键': '按键3',
           '缺省继电器4对应按键': '按键4',
           '第三方硬件基板': '网月',
-          '人体感应模块参数': ''
+          '人体感应模块参数': '',
+          '人体感应灵敏度': '100'
         }
 
         this.formChange = {
