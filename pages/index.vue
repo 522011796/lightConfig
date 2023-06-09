@@ -1412,7 +1412,7 @@ export default {
           return;
           // fileName = this.formSwitch.厂商名称
         }
-        if (this.formSwitch.人体感应模块参数 != ""){
+        if (this.formSwitch.人体感应模块参数 && this.formSwitch.人体感应模块参数 != ""){
           let req = /^[A-Fa-f0-9]+$/;
           if (this.formSwitch.人体感应模块参数.length % 2 != 0){
             this.$message({
@@ -1473,7 +1473,7 @@ export default {
         this.formSwitch.缺省继电器4对应按键 = this.formSwitch.缺省继电器4对应按键;
         this.formSwitch.第三方硬件基板 = this.formSwitch.第三方硬件基板;
         this.formSwitch.人体感应模块参数 = this.formSwitch.人体感应模块参数;
-        this.formSwitch.人体感应灵敏度 = bodySersonValueTemp;
+        this.formSwitch.人体感应灵敏度 = parseFloat(bodySersonValueTemp);
         this.formSwitch.按键数量Bak = undefined;
         this.formSwitch.继电器数量Bak = undefined;
       }else if (this.devType == 'repeater'){
