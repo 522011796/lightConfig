@@ -537,6 +537,9 @@
           <el-form-item label="人体感应灵敏度">
             <el-input v-model="formSwitch.人体感应灵敏度" maxlength="3" placeholder="范围:0-100" class="width300"></el-input>
           </el-form-item>
+          <el-form-item label="IO扩展芯片I2C地址">
+            <el-input v-model="formSwitch.IO扩展芯片I2C地址" maxlength="2" placeholder="范围:0-FF十六进制" class="width300"></el-input>
+          </el-form-item>
         </el-form>
 
         <el-form v-if="devType == 'repeater'" ref="formChange" :model="formChange" label-width="150px">
@@ -820,7 +823,8 @@ export default {
         '缺省继电器4对应按键': '按键4',
         '第三方硬件基板': '网月',
         '人体感应模块参数': '',
-        '人体感应灵敏度':'100'
+        '人体感应灵敏度':'100',
+        'IO扩展芯片I2C地址': '0'
       },
       formChange: {
         '厂商名称': 'netmoon',
@@ -1160,6 +1164,7 @@ export default {
 
           this.formSwitch['第三方硬件基板'] = this.formSwitch['第三方硬件基板'] ? this.formSwitch['第三方硬件基板'] : "网月";
           this.$set(this.formSwitch, '人体感应灵敏度', this.formSwitch['人体感应灵敏度'] ? this.formSwitch['人体感应灵敏度'] * 100 : "100");
+          this.$set(this.formSwitch, 'IO扩展芯片I2C地址', this.formSwitch['IO扩展芯片I2C地址'] ?  this.convertBase(this.formSwitch['IO扩展芯片I2C地址'], 10, 16) : "0");
 
           let year1 = '20' + this.formSwitch.硬件制造日期.substring(0,2);
           let year2 = '20' + this.formSwitch.产品出厂日期.substring(0,2);
@@ -1445,9 +1450,28 @@ export default {
           }
         }
 
+        if (this.formSwitch.IO扩展芯片I2C地址 == ""){
+          this.$message({
+            message: "请填写IO扩展芯片I2C地址！",
+            type: 'warning'
+          });
+          return;
+        }else if (this.formSwitch.IO扩展芯片I2C地址 != ""){
+          let req = /^[A-Fa-f0-9]+$/;
+          if (!req.test(this.formSwitch.IO扩展芯片I2C地址)){
+            this.$message({
+              message: "IO扩展芯片I2C地址为16进制",
+              type: 'warning'
+            });
+            return;
+          }
+        }
+
         let bodySersonValue = this.formSwitch.人体感应灵敏度;
         let bodySersonValueTemp = (bodySersonValue/100).toFixed(2);
 
+        let i2cValue = this.formSwitch.IO扩展芯片I2C地址;
+        let i2cHexValue = this.convertBase(i2cValue, 16, 10);
 
         this.formSwitch.按键数量 = parseInt(this.formSwitch.按键数量Bak);
         this.formSwitch.继电器数量 = parseInt(this.formSwitch.继电器数量Bak);
@@ -1476,6 +1500,7 @@ export default {
         this.formSwitch.人体感应灵敏度 = parseFloat(bodySersonValueTemp);
         this.formSwitch.按键数量Bak = undefined;
         this.formSwitch.继电器数量Bak = undefined;
+        this.formSwitch.IO扩展芯片I2C地址 = parseInt(i2cHexValue);
       }else if (this.devType == 'repeater'){
         this.formChange.硬件制造日期 = this.createTime.substring(2,4) + this.createTime.substring(5,7);
         this.formChange.产品出厂日期 = this.goodsTime.substring(2,4) + this.goodsTime.substring(5,7);
@@ -1527,6 +1552,8 @@ export default {
       }else if (this.devType == 'sensor'){
         params['data'] = JSON.stringify(this.formSensor);
       }
+      console.log(params);
+      //return;
       params = this.$qs.stringify(params);
       this.loading = true;
       this.$axios.post('/proxy/action.php?action='+action, params).then(res => {
@@ -1538,11 +1565,18 @@ export default {
             message: res.data.desc,
             type: 'info'
           });
+          this.formSwitch = this.formSwitch;
           this.formSwitch.按键数量Bak = parseInt(this.formSwitch.按键数量);
           this.formSwitch.继电器数量Bak = parseInt(this.formSwitch.继电器数量);
+          this.formSwitch.IO扩展芯片I2C地址 = this.convertBase(this.formSwitch['IO扩展芯片I2C地址'], 10, 16);
+          this.formSwitch.人体感应灵敏度 = this.formSwitch['人体感应灵敏度'] * 100;
         }
         this.loading = false;
       });
+    },
+    convertBase(number, fromBase, toBase) {
+      const decimalNumber = parseInt(number, fromBase);
+      return decimalNumber.toString(toBase);
     },
     changeLightType(data){
       let type = "";
@@ -1751,7 +1785,8 @@ export default {
           '缺省继电器4对应按键': '按键4',
           '第三方硬件基板': '网月',
           '人体感应模块参数': '',
-          '人体感应灵敏度': '100'
+          '人体感应灵敏度': '100',
+          'IO扩展芯片I2C地址': '0'
         }
 
         this.formChange = {
