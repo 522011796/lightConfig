@@ -311,6 +311,12 @@
           <el-form-item label="缺省最高色温">
             <el-input v-model="formConfig.缺省最高色温" class="width440"></el-input>
           </el-form-item>
+          <el-form-item label="调光曲线">
+            <el-radio-group v-model="formConfig.调光曲线" @change="changeLightModel">
+              <el-radio label="log曲线"></el-radio>
+              <el-radio label="无曲线"></el-radio>
+            </el-radio-group>
+          </el-form-item>
         </el-form>
 
         <el-form v-if="devType == 'switch'" ref="formSwitch" :model="formSwitch" label-width="150px">
@@ -787,7 +793,8 @@ export default {
         '缺省最低亮度': 0.0001,
         '缺省最高亮度': 1,
         '缺省最低色温': 2700,
-        '缺省最高色温': 6500
+        '缺省最高色温': 6500,
+        '调光曲线': 'log曲线'
       },
       formSwitch: {
         '厂商名称': 'netmoon',
@@ -1405,6 +1412,7 @@ export default {
         this.formConfig.缺省最低亮度 = parseFloat(this.formConfig.缺省最低亮度);
         this.formConfig.缺省最低色温 = parseInt(this.formConfig.缺省最低色温);
         this.formConfig.缺省最高色温 = parseInt(this.formConfig.缺省最高色温);
+        this.formConfig.调光曲线 = this.formConfig.调光曲线;
       }else if (this.devType == "switch"){
         this.formSwitch.硬件制造日期 = this.createTime.substring(2,4) + this.createTime.substring(5,7);
         this.formSwitch.产品出厂日期 = this.goodsTime.substring(2,4) + this.goodsTime.substring(5,7);
@@ -1748,7 +1756,8 @@ export default {
           '缺省最低亮度': 0.0001,
           '缺省最高亮度': 1,
           '缺省最低色温': 2700,
-          '缺省最高色温': 6500
+          '缺省最高色温': 6500,
+          '调光曲线': 'log曲线'
         };
 
         this.formSwitch = {
